@@ -145,3 +145,55 @@ func Test_reverse(t *testing.T) {
 		})
 	}
 }
+
+func Test_isPalindrome(t *testing.T) {
+	type args struct {
+		x int
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		// TODO: Add test cases.
+		{name: "t1", args: args{x: 5}, want: true},
+		{name: "t2", args: args{x: 121}, want: true},
+		{name: "t3", args: args{x: 4422}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isPalindrome(tt.args.x); got != tt.want {
+				t.Errorf("isPalindrome() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_isMatch(t *testing.T) {
+	type args struct {
+		s string
+		p string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		// TODO: Add test cases.
+		{name: "t1", args: args{s: "abcabcbb", p: "abcabcbb"}, want: true},
+		{name: "t2", args: args{s: "abcabcbb", p: ".*"}, want: true},
+		{name: "t3", args: args{s: "abcabcbb", p: ""}, want: false},
+		{name: "t4", args: args{s: "aa", p: "a"}, want: false},
+		{name: "t5", args: args{s: "aa", p: "a*"}, want: true},
+		{name: "t6", args: args{s: "aa", p: ".*"}, want: true},
+		{name: "t7", args: args{s: "", p: "a***"}, want: true},
+		{name: "t7", args: args{s: "abc", p: "a***abc"}, want: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isMatch(tt.args.s, tt.args.p); got != tt.want {
+				t.Errorf("isMatch() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

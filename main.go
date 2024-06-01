@@ -144,3 +144,42 @@ func reverse(x int) int {
 		return ret
 	}
 }
+
+func isPalindrome(x int) bool {
+	rx := 0
+	for t := x; t > 0; t /= 10 {
+		rx = rx*10 + t%10
+	}
+
+	return rx == x
+}
+
+func isMatch(s string, p string) bool {
+	m := len(s)
+	n := len(p)
+	s = " " + s
+	p = " " + p
+
+	// dp[i][j] means if s[1..i] matches p[1..j]
+	dp := make([][]bool, m+1)
+	for i := range dp {
+		dp[i] = make([]bool, n+1)
+	}
+	dp[0][0] = true
+
+	for i := 0; i <= m; i++ {
+		for j := 1; j <= n; j++ {
+			if j+1 <= n && j%2 == 1 && p[j+1] == '*' {
+				// * must occur on even indexes
+				continue
+			}
+			if i > 0 && p[j] != '*' {
+				dp[i][j] = (p[j] == '.' || s[i] == p[j]) && dp[i-1][j-1]
+			} else if p[j] == '*' {
+				dp[i][j] = dp[i][j-2] || i > 0 && dp[i-1][j] && (s[i] == p[j-1] || p[j-1] == '.')
+			}
+		}
+	}
+
+	return dp[m][n]
+}
