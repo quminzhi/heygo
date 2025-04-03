@@ -27,8 +27,8 @@ This project is designed to implement and test two common sorting algorithms: Qu
 
 Clone the project to your local machine:
 ```bash
-git clone <repository_url>
-cd <project_directory>
+git clone https://github.com/quminzhi/heygo.git
+cd heygo
 ```
 
 ## Usage
