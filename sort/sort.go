@@ -14,32 +14,26 @@ func QuickSort(nums []int, left, right int) {
 
 	// Create a new random number generator with a custom source
 	rg := rand.New(rand.NewSource(time.Now().UnixNano()))
+	pivotIndex := rg.Intn(right-left) + left
+	pivot := nums[pivotIndex]
 
-	l, r, i := left-1, right+1, rg.Intn(right-left+1)+left
-	pivot := nums[i]
-
-	for l < r {
-		for {
+	l, r := left, right
+	for l <= r {
+		for nums[l] < pivot {
 			l++
-			// Find the first number greater than the pivot
-			if nums[l] >= pivot {
-				break
-			}
 		}
-		for {
+		for nums[r] > pivot {
 			r--
-			// Find the first number less than the pivot
-			if nums[r] <= pivot {
-				break
-			}
 		}
-		if l < r {
+		if l <= r {
 			nums[l], nums[r] = nums[r], nums[l]
+			l++
+			r--
 		}
 	}
 
 	QuickSort(nums, left, r)
-	QuickSort(nums, r+1, right)
+	QuickSort(nums, l, right)
 }
 
 // QuickSortNR is non-recursive implementation with stack
