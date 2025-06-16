@@ -257,7 +257,7 @@ func merge(nums []int, left, mid, right int) {
 // Extension
 //
 
-func quickselect(nums []int, left, right, k int) int {
+func quickSelect(nums []int, left, right, k int) int {
 	if left == right {
 		return nums[left]
 	}
@@ -287,9 +287,9 @@ func quickselect(nums []int, left, right, k int) int {
 	// left partition [left, r], right partition [r+1, right]
 	lsz := r - left + 1
 	if lsz >= k {
-		return quickselect(nums, left, r, k)
+		return quickSelect(nums, left, r, k)
 	} else {
-		return quickselect(nums, r+1, right, k-lsz)
+		return quickSelect(nums, r+1, right, k-lsz)
 	}
 }
 
@@ -302,5 +302,5 @@ func KthSmallestNumber(nums []int, k int) (int, error) {
 	numsCopy := make([]int, len(nums))
 	copy(numsCopy, nums)
 
-	return quickselect(numsCopy, 0, len(numsCopy)-1, k), nil
+	return quickSelect(numsCopy, 0, len(numsCopy)-1, k), nil
 }

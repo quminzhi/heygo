@@ -316,6 +316,8 @@ func BenchmarkMergeSortNR(b *testing.B) {
 	}
 }
 
+// ............................................
+
 //
 // Extension
 //
@@ -483,10 +485,7 @@ func BenchmarkKthSmallestNumber(b *testing.B) {
 
 	for _, size := range sizes {
 		// Create a slice with random numbers
-		nums := make([]int, size)
-		for i := range nums {
-			nums[i] = rand.Intn(size * 10)
-		}
+		nums := generateRandomSlice(size, size*10)
 		k := size / 2 // Benchmark middle element selection
 
 		// Convert size to string properly
