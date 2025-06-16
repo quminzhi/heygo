@@ -1,6 +1,7 @@
 package sort
 
 import (
+	"errors"
 	"math/rand"
 	"sync"
 	"time"
@@ -36,7 +37,7 @@ func QuickSort(nums []int, left, right int) {
 	QuickSort(nums, l, right)
 }
 
-// QuickSortNR is non-recursive implementation with stack
+// QuickSortNR is a non-recursive implementation with stack
 func QuickSortNR(nums []int) {
 	if len(nums) <= 1 {
 		return
@@ -74,7 +75,7 @@ func QuickSortNR(nums []int) {
 			}
 		}
 
-		// Push sub-arrays onto the stack
+		// Push subarrays onto the stack
 		if left < r {
 			stack = append(stack, struct{ left, right int }{left, r})
 		}
@@ -219,7 +220,7 @@ func MergeSortNR(nums []int) {
 	}
 }
 
-// merge function merges two sorted subarrays: nums[left:mid+1] and nums[mid+1:right+1]
+// merge function merges two sorted subarrays: nums[left: mid+1] and nums[mid+1: right+1]
 func merge(nums []int, left, mid, right int) {
 	buf := make([]int, right-left+1)
 	l, r, p := left, mid+1, 0
@@ -248,6 +249,58 @@ func merge(nums []int, left, mid, right int) {
 		p++
 	}
 
-	// Copy merged result back to original array
+	// Copy merged result back to the original array
 	copy(nums[left:right+1], buf)
+}
+
+//
+// Extension
+//
+
+func quickselect(nums []int, left, right, k int) int {
+	if left == right {
+		return nums[left]
+	}
+
+	l, r := left, right
+	rg := rand.New(rand.NewSource(time.Now().UnixNano()))
+	pivotIndex := rg.Intn(right-left) + left
+	pivot := nums[pivotIndex]
+
+	for l <= r {
+		for nums[l] < pivot {
+			l++
+		}
+		for nums[r] > pivot {
+			r--
+		}
+		// If pointers crossed, partition is complete
+		if l >= r {
+			break
+		}
+		// Swap and move pointers
+		nums[l], nums[r] = nums[r], nums[l]
+		l++
+		r--
+	}
+
+	// left partition [left, r], right partition [r+1, right]
+	lsz := r - left + 1
+	if lsz >= k {
+		return quickselect(nums, left, r, k)
+	} else {
+		return quickselect(nums, r+1, right, k-lsz)
+	}
+}
+
+func KthSmallestNumber(nums []int, k int) (int, error) {
+	if k <= 0 || k > len(nums) {
+		return 0, errors.New("k is out of bounds")
+	}
+
+	// Make a copy to avoid modifying the original slice
+	numsCopy := make([]int, len(nums))
+	copy(numsCopy, nums)
+
+	return quickselect(numsCopy, 0, len(numsCopy)-1, k), nil
 }
