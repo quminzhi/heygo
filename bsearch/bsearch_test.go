@@ -5,12 +5,149 @@ import (
 	"testing"
 )
 
-type args struct {
-	nums   []int
-	target int
+//
+// SearchInsert
+//
+
+func TestSearchInsert(t *testing.T) {
+	type args struct {
+		nums   []int
+		target int
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		// Found cases
+		{
+			name: "target found in single-element array",
+			args: args{nums: []int{5}, target: 5},
+			want: 0,
+		},
+		{
+			name: "target found at beginning",
+			args: args{nums: []int{1, 3, 5}, target: 1},
+			want: 0,
+		},
+		{
+			name: "target found in middle",
+			args: args{nums: []int{1, 3, 5}, target: 3},
+			want: 1,
+		},
+		{
+			name: "target found at end",
+			args: args{nums: []int{1, 3, 5}, target: 5},
+			want: 2,
+		},
+
+		// Insert cases
+		{
+			name: "insert at beginning",
+			args: args{nums: []int{2, 4, 6}, target: 1},
+			want: 0,
+		},
+		{
+			name: "insert in middle",
+			args: args{nums: []int{1, 3, 5}, target: 2},
+			want: 1,
+		},
+		{
+			name: "insert at end",
+			args: args{nums: []int{1, 3, 5}, target: 6},
+			want: 3,
+		},
+		{
+			name: "insert in empty array",
+			args: args{nums: []int{}, target: 1},
+			want: 0,
+		},
+
+		// Edge cases
+		{
+			name: "insert before duplicate values",
+			args: args{nums: []int{1, 3, 3, 5}, target: 2},
+			want: 1,
+		},
+		{
+			name: "insert at position of first occurrence",
+			args: args{nums: []int{1, 3, 3, 5}, target: 3},
+			want: 1,
+		},
+		{
+			name: "large array insertion",
+			args: args{
+				nums:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+				target: 7,
+			},
+			want: 6,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SearchInsert(tt.args.nums, tt.args.target); got != tt.want {
+				t.Errorf("SearchInsert() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
+func BenchmarkSearchInsert(b *testing.B) {
+	type args struct {
+		nums   []int
+		target int
+	}
+
+	benchmarks := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "small array",
+			args: args{nums: []int{1, 3, 5}, target: 2},
+		},
+		{
+			name: "medium array",
+			args: args{nums: makeRange(1, 1000), target: 500},
+		},
+		{
+			name: "large array",
+			args: args{nums: makeRange(1, 100000), target: 99999},
+		},
+		{
+			name: "not found large",
+			args: args{nums: makeRange(1, 100000), target: 100001},
+		},
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				SearchInsert(bm.args.nums, bm.args.target)
+			}
+		})
+	}
+}
+
+func makeRange(min, max int) []int {
+	a := make([]int, max-min+1)
+	for i := range a {
+		a[i] = min + i
+	}
+	return a
+}
+
+//
+// SearchRange
+//
+
 func TestSearchRange(t *testing.T) {
+	type args struct {
+		nums   []int
+		target int
+	}
 	tests := []struct {
 		name string
 		args args
@@ -106,6 +243,32 @@ func TestSearchRange(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkSearchRange(b *testing.B) {
+	// Test cases for searchRange
+	testCases := []struct {
+		name   string
+		nums   []int
+		target int
+	}{
+		{"small array", []int{1, 2, 2, 3, 4, 4, 4}, 4},
+		{"medium array", makeSortedArray(1000, 42), 42},
+		{"large array", makeSortedArray(100000, 99999), 99999},
+		{"not found", makeSortedArray(10000, -1), 10001},
+	}
+
+	for _, tc := range testCases {
+		b.Run(tc.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				SearchRange(tc.nums, tc.target)
+			}
+		})
+	}
+}
+
+//
+// SearchInRotatedSortedArray
+//
 
 func Test_searchInRotatedSortedArray(t *testing.T) {
 	type args struct {
@@ -232,28 +395,6 @@ func Test_searchInRotatedSortedArray(t *testing.T) {
 	}
 }
 
-func BenchmarkSearchRange(b *testing.B) {
-	// Test cases for searchRange
-	testCases := []struct {
-		name   string
-		nums   []int
-		target int
-	}{
-		{"small array", []int{1, 2, 2, 3, 4, 4, 4}, 4},
-		{"medium array", makeSortedArray(1000, 42), 42},
-		{"large array", makeSortedArray(100000, 99999), 99999},
-		{"not found", makeSortedArray(10000, -1), 10001},
-	}
-
-	for _, tc := range testCases {
-		b.Run(tc.name, func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				SearchRange(tc.nums, tc.target)
-			}
-		})
-	}
-}
-
 func BenchmarkSearchInRotatedSortedArray(b *testing.B) {
 	// Test cases for rotated array search
 	testCases := []struct {
@@ -276,7 +417,9 @@ func BenchmarkSearchInRotatedSortedArray(b *testing.B) {
 	}
 }
 
+//
 // Helper functions to generate test data
+//
 
 // makeSortedArray creates a sorted array with target repeated multiple times
 func makeSortedArray(size, target int) []int {
@@ -324,4 +467,33 @@ func makeRotatedArray(size, pivot int) []int {
 	}
 
 	return rotated
+}
+
+func TestSearchMatrix(t *testing.T) {
+	type args struct {
+		matrix [][]int
+		target int
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{name: "Single element found", args: args{matrix: [][]int{[]int{1}},
+			target: 1}, want: true},
+		{name: "Single element not found", args: args{matrix: [][]int{[]int{1}},
+			target: 0}, want: false},
+		{name: "Single element not found 2", args: args{matrix: [][]int{[]int{1}},
+			target: 2}, want: false},
+		{name: "Single column found", args: args{matrix: [][]int{[]int{1},
+			[]int{3}},
+			target: 3}, want: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SearchMatrix(tt.args.matrix, tt.args.target); got != tt.want {
+				t.Errorf("SearchMatrix() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
