@@ -95,3 +95,36 @@ func middleNode(head *ListNode) *ListNode {
 	}
 	return mid
 }
+
+func reverseBetween(head *ListNode, left int, right int) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+
+	dummy := &ListNode{}
+	dummy.Next = head
+
+	// Move to the left
+	cur := dummy
+	prev := dummy // the one before left
+	for i := 0; i < left; i++ {
+		prev = cur
+		cur = cur.Next
+	}
+
+	// Reverse the nodes between left and right
+	next := cur.Next
+	for i := 0; i < right-left; i++ {
+		tmp := next.Next
+		next.Next = cur
+		// Update working pointers
+		cur = next
+		next = tmp
+	}
+
+	// Connect
+	prev.Next.Next = next
+	prev.Next = cur
+
+	return dummy.Next
+}
