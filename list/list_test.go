@@ -134,6 +134,33 @@ func Test_reorderList(t *testing.T) {
 	}
 }
 
+func Test_insertionSortList(t *testing.T) {
+	type args struct {
+		head *ListNode
+	}
+	tests := []struct {
+		name string
+		args args
+		want *ListNode
+	}{
+		{
+			name: "Empty list",
+			args: args{head: buildList([]int{4, 2, 1, 3})},
+			want: buildList([]int{1, 2, 3, 4}),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Run the function
+			got := insertionSortList(tt.args.head)
+			if !compareListWithSlice(got, listToSlice(tt.want)) {
+				t.Errorf("insertionSortList() = %v, want %v", listToSlice(got),
+					listToSlice(tt.want))
+			}
+		})
+	}
+}
+
 // Helper function to build a linked list from a slice of integers
 func buildList(nums []int) *ListNode {
 	if len(nums) == 0 {

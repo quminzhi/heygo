@@ -7,6 +7,7 @@ type ListNode struct {
 	Next *ListNode
 }
 
+// 206
 func reverseList(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		// zero or one node in the list
@@ -26,6 +27,7 @@ func reverseList(head *ListNode) *ListNode {
 	return head
 }
 
+// 141
 // hasCycle detects if a linked list has a circle in it
 func hasCycle(head *ListNode) bool {
 	if head == nil {
@@ -48,6 +50,7 @@ func hasCycle(head *ListNode) bool {
 	return false
 }
 
+// 83
 func deleteDuplicates(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -65,6 +68,7 @@ func deleteDuplicates(head *ListNode) *ListNode {
 	return head
 }
 
+// 203
 func removeElements(head *ListNode, val int) *ListNode {
 	if head == nil {
 		return head
@@ -85,6 +89,7 @@ func removeElements(head *ListNode, val int) *ListNode {
 	return head
 }
 
+// 876
 func middleNode(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -98,6 +103,7 @@ func middleNode(head *ListNode) *ListNode {
 	return mid
 }
 
+// 92
 func reverseBetween(head *ListNode, left int, right int) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -131,6 +137,7 @@ func reverseBetween(head *ListNode, left int, right int) *ListNode {
 	return dummy.Next
 }
 
+// 143
 func reorderList(head *ListNode) {
 	if head == nil || head.Next == nil {
 		return
@@ -182,6 +189,7 @@ func reorderList(head *ListNode) {
 	head = dummy.Next
 }
 
+// 82
 func deleteDuplicatesII(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -206,6 +214,7 @@ func deleteDuplicatesII(head *ListNode) *ListNode {
 	return dummy.Next
 }
 
+// 86
 func partition(head *ListNode, x int) *ListNode {
 	less := &ListNode{}
 	lessLast := less
@@ -225,6 +234,7 @@ func partition(head *ListNode, x int) *ListNode {
 	return less.Next
 }
 
+// 61
 func rotateRight(head *ListNode, k int) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -255,8 +265,9 @@ func rotateRight(head *ListNode, k int) *ListNode {
 	return head
 }
 
+// 147
 func insertionSortList(head *ListNode) *ListNode {
-	dummy := &ListNode{Val: math.MinInt32, Next: head}
+	dummy := &ListNode{Val: math.MinInt32, Next: nil}
 
 	cur := head
 	for cur != nil {
@@ -264,13 +275,66 @@ func insertionSortList(head *ListNode) *ListNode {
 
 		// Find the right place for each node to insert
 		ins := dummy
-		for ; ins.Next != nil && ins.Val < cur.Val; ins = ins.Next {
+		for ; ins.Next != nil && ins.Next.Val < cur.Val; ins = ins.Next {
 		}
+		// Insert after ins
 		tmp := ins.Next
 		ins.Next = cur
 		cur.Next = tmp
 
 		cur = next
 	}
+	return dummy.Next
+}
+
+type Node struct {
+	Value  int
+	Next   *Node
+	Random *Node
+}
+
+// 138
+func copyRandomList(head *Node) *Node {
+	m := make(map[*Node]*Node)
+	// Clone points
+	for cur := head; cur != nil; cur = cur.Next {
+		m[cur] = &Node{Value: cur.Value, Next: nil}
+	}
+
+	// Clone pointers
+	for k, v := range m {
+		v.Next = m[k.Next]
+		v.Random = m[k.Random]
+	}
+
+	return m[head]
+}
+
+// 24
+func swapPairs(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+
+	dummy := &ListNode{Next: head}
+	prev := dummy
+	p, q := head, head.Next
+	for p != nil && q != nil {
+		next := q.Next
+
+		// Swap p and q
+		prev.Next = q
+		p.Next = next
+		q.Next = p
+	
+		// Update prev, p and q
+		prev = p
+		p = next
+		if next == nil {
+			break
+		}
+		q = next.Next
+	}
+
 	return dummy.Next
 }
