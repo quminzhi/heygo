@@ -230,7 +230,7 @@ func Test_oddEvenList(t *testing.T) {
 	}
 }
 
-func TestSplitListToParts(t *testing.T) {
+func Test_splitListToParts(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    []int
@@ -319,6 +319,69 @@ func TestSplitListToParts(t *testing.T) {
 	}
 }
 
+func Test_MergeKLists(t *testing.T) {
+	tests := []struct {
+		name     string
+		lists    []*ListNode
+		expected []int
+	}{
+		{
+			name:     "Empty input",
+			lists:    []*ListNode{},
+			expected: []int{},
+		},
+		{
+			name:     "Single empty list",
+			lists:    []*ListNode{nil},
+			expected: []int{},
+		},
+		{
+			name: "Single non-empty list",
+			lists: []*ListNode{
+				sliceToList([]int{1, 3, 5}),
+			},
+			expected: []int{1, 3, 5},
+		},
+		{
+			name: "Multiple sorted lists",
+			lists: []*ListNode{
+				sliceToList([]int{1, 4, 7}),
+				sliceToList([]int{2, 5, 8}),
+				sliceToList([]int{3, 6, 9}),
+			},
+			expected: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		},
+		{
+			name: "Lists with varying lengths",
+			lists: []*ListNode{
+				sliceToList([]int{1, 5}),
+				sliceToList([]int{2}),
+				sliceToList([]int{3, 4, 6}),
+			},
+			expected: []int{1, 2, 3, 4, 5, 6},
+		},
+		{
+			name: "All lists empty",
+			lists: []*ListNode{
+				nil,
+				nil,
+				nil,
+			},
+			expected: []int{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := MergeKLists(tt.lists)
+			got := listToSlice(result)
+			if !slicesEqual(got, tt.expected) {
+				t.Errorf("MergeKLists() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
 // Helper function to build a linked list from a slice of integers
 func buildList(nums []int) *ListNode {
 	if len(nums) == 0 {
@@ -370,4 +433,31 @@ func partsToSlices(parts []*ListNode) [][]int {
 		result = append(result, slice)
 	}
 	return result
+}
+
+// Helper: Converts a slice to a linked list.
+func sliceToList(nums []int) *ListNode {
+	if len(nums) == 0 {
+		return nil
+	}
+	head := &ListNode{Val: nums[0]}
+	current := head
+	for _, num := range nums[1:] {
+		current.Next = &ListNode{Val: num}
+		current = current.Next
+	}
+	return head
+}
+
+// Helper: Checks if two slices are equal.
+func slicesEqual(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }

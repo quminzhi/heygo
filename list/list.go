@@ -1,6 +1,9 @@
 package list
 
-import "math"
+import (
+	"container/heap"
+	"math"
+)
 
 type ListNode struct {
 	Val  int
@@ -390,6 +393,7 @@ func splitListToParts(head *ListNode, k int) []*ListNode {
 		if cur == nil {
 			continue
 		}
+		// Guarantee that cur always points to some node in the list
 		for i := 0; i < groupSize-1; i++ {
 			cur = cur.Next
 		}
@@ -399,4 +403,107 @@ func splitListToParts(head *ListNode, k int) []*ListNode {
 	}
 
 	return splitList
+}
+
+// 21
+func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
+	if list1 == nil {
+		return list2
+	}
+	if list2 == nil {
+		return list1
+	}
+
+	dummy := &ListNode{}
+	last := dummy
+	l1, l2 := list1, list2
+	for l1 != nil && l2 != nil {
+		if l1.Val < l2.Val {
+			next := l1.Next // Backup
+			last.Next = l1
+			l1.Next = nil
+			last = l1
+			l1 = next
+		} else {
+			next := l2.Next
+			last.Next = l2
+			l2.Next = nil
+			last = l2
+			l2 = next
+		}
+	}
+	for l1 != nil {
+		last.Next = l1
+		last = l1
+		l1 = l1.Next
+	}
+	for l2 != nil {
+		last.Next = l2
+		last = l2
+		l2 = l2.Next
+	}
+	last.Next = nil
+	return dummy.Next
+}
+
+func merge(lists []*ListNode, l, r int) *ListNode {
+	if l >= r {
+		return lists[l]
+	}
+	mid := l + (r-l)/2
+	left := merge(lists, l, mid)
+	right := merge(lists, mid+1, r)
+	return mergeTwoLists(left, right)
+}
+
+// 23 O(Nlog(k)), N is the total number of nodes, k is the deep of recursion
+func mergeKLists(lists []*ListNode) *ListNode {
+	if len(lists) == 0 {
+		return nil
+	}
+	return merge(lists, 0, len(lists)-1)
+}
+
+// MergeKLists uses min heap O(Nlog(k))
+func MergeKLists(lists []*ListNode) *ListNode {
+	if len(lists) == 0 {
+		return nil
+	}
+
+	h := &minHeap{}
+	heap.Init(h)
+	for _, list := range lists {
+		if list != nil {
+			heap.Push(h, list)
+		}
+	}
+
+	dummy := &ListNode{}
+	last := dummy
+	for h.Len() > 0 {
+		minNode := heap.Pop(h).(*ListNode)
+		next := minNode.Next
+		last.Next = minNode
+		last = minNode
+		if next != nil {
+			heap.Push(h, next)
+		}
+	}
+	last.Next = nil
+
+	return dummy.Next
+}
+
+type minHeap []*ListNode
+
+func (h minHeap) Len() int            { return len(h) }
+func (h minHeap) Less(i, j int) bool  { return h[i].Val < h[j].Val }
+func (h minHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *minHeap) Push(x interface{}) { *h = append(*h, x.(*ListNode)) }
+func (h *minHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
 }
