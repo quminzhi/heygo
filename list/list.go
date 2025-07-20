@@ -326,7 +326,7 @@ func swapPairs(head *ListNode) *ListNode {
 		prev.Next = q
 		p.Next = next
 		q.Next = p
-	
+
 		// Update prev, p and q
 		prev = p
 		p = next
@@ -337,4 +337,66 @@ func swapPairs(head *ListNode) *ListNode {
 	}
 
 	return dummy.Next
+}
+
+// 328
+func oddEvenList(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+
+	dummyOdd := &ListNode{}
+	lastOdd := dummyOdd
+	dummyEven := &ListNode{}
+	lastEven := dummyEven
+	for cur, i := head, 1; cur != nil; i = i + 1 {
+		next := cur.Next
+		if i%2 == 0 {
+			// Even
+			tmp := lastEven.Next
+			lastEven.Next = cur
+			cur.Next = tmp
+			lastEven = cur
+		} else {
+			// Odd
+			tmp := lastOdd.Next
+			lastOdd.Next = cur
+			cur.Next = tmp
+			lastOdd = cur
+		}
+		cur = next
+	}
+	lastOdd.Next = dummyEven.Next
+	return dummyOdd.Next
+}
+
+// 725
+// no two parts should have a size differing by more than one
+func splitListToParts(head *ListNode, k int) []*ListNode {
+	splitList := make([]*ListNode, k)
+	n := 0
+	for cur := head; cur != nil; cur = cur.Next {
+		n++
+	}
+
+	cur := head
+	for group := 0; group < k; group++ {
+		groupSize := n / k
+		if group+1 <= n%k {
+			groupSize++
+		}
+		splitList[group] = cur
+		// group number may be greater than the number of the list
+		if cur == nil {
+			continue
+		}
+		for i := 0; i < groupSize-1; i++ {
+			cur = cur.Next
+		}
+		next := cur.Next
+		cur.Next = nil
+		cur = next
+	}
+
+	return splitList
 }
