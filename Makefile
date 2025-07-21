@@ -1,4 +1,5 @@
-SORT_DIR := ./sort
+#SORT_DIR := ./sort
+SORT_DIR := ./list
 
 test:
 	go test $(SORT_DIR)
