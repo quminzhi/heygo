@@ -1,5 +1,7 @@
 package tree
 
+import "fmt"
+
 type TreeNode struct {
 	Val   int
 	Left  *TreeNode
@@ -227,4 +229,111 @@ func maxDepth(root *TreeNode) int {
 	}
 
 	return maxInt(maxDepth(root.Left), maxDepth(root.Right)) + 1
+}
+
+// 101 *****
+func isSymmetric(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+
+	var isMirror func(p, q *TreeNode) bool
+	isMirror = func(p, q *TreeNode) bool {
+		if p == nil && q == nil {
+			return true
+		}
+		if p == nil || q == nil || p.Val != q.Val {
+			return false
+		}
+		return isMirror(p.Left, q.Right) && isMirror(p.Right, q.Left)
+	}
+
+	return isMirror(root.Left, root.Right)
+}
+
+// 226
+func invertTree(root *TreeNode) *TreeNode {
+	if root == nil {
+		return nil
+	}
+
+	var invert func(root *TreeNode) *TreeNode
+	invert = func(root *TreeNode) *TreeNode {
+		if root == nil {
+			return nil
+		}
+		invert(root.Left)
+		invert(root.Right)
+		root.Left, root.Right = root.Right, root.Left
+		return root
+	}
+
+	return invert(root)
+}
+
+// 543
+func diameterOfBinaryTree(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+
+	maxDiameter := 0
+	var maxLengthToLeafNode func(root *TreeNode) int
+	maxLengthToLeafNode = func(root *TreeNode) int {
+		if root == nil {
+			return -1
+		}
+		left := maxLengthToLeafNode(root.Left)
+		right := maxLengthToLeafNode(root.Right)
+		// Update maxDiameter
+		diameter := left + right + 2
+		if diameter > maxDiameter {
+			maxDiameter = diameter
+		}
+		maxInt := func(x, y int) int {
+			if x > y {
+				return x
+			}
+			return y
+		}
+		return maxInt(left, right) + 1
+	}
+
+	maxLengthToLeafNode(root)
+	return maxDiameter
+}
+
+// 257
+func binaryTreePaths(root *TreeNode) []string {
+	if root == nil {
+		return []string{}
+	}
+
+	var treePath func(root *TreeNode) []string
+	treePath = func(root *TreeNode) []string {
+		if root.Left == nil && root.Right == nil {
+			return []string{fmt.Sprintf("%v", root.Val)}
+		}
+
+		rootPaths := make([]string, 0)
+		if root.Left != nil {
+			leftPaths := treePath(root.Left)
+			// In for range, leftPath is the copy of element in leftPaths
+			// Modification to it does not apply to original one
+			for _, leftPath := range leftPaths {
+				rootPaths = append(rootPaths, fmt.Sprintf("%d->%s", root.Val,
+					leftPath))
+			}
+		}
+		if root.Right != nil {
+			rightPaths := treePath(root.Right)
+			for _, rightPath := range rightPaths {
+				rootPaths = append(rootPaths, fmt.Sprintf("%d->%s", root.Val,
+					rightPath))
+			}
+		}
+		return rootPaths
+	}
+
+	return treePath(root)
 }
