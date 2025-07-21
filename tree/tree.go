@@ -88,3 +88,143 @@ func levelOrder(root *TreeNode) [][]int {
 	}
 	return res
 }
+
+// 108
+func sortedArrayToBST(nums []int) *TreeNode {
+	if len(nums) == 0 {
+		return nil
+	}
+
+	mid := len(nums) / 2
+	root := &TreeNode{Val: nums[mid]}
+	root.Left = sortedArrayToBST(nums[:mid])
+	root.Right = sortedArrayToBST(nums[mid+1:])
+	return root
+}
+
+// 105
+// preorder: mid, left set, right set
+// inorder:  left set, mid, right set
+func buildTreeFromPreorderInorder(preorder []int, inorder []int) *TreeNode {
+	if len(preorder) == 0 {
+		return nil
+	}
+
+	root := &TreeNode{Val: preorder[0]}
+	// Guarantee that preorder and inorder consist of unique values
+	i := 0
+	for ; i < len(inorder); i++ {
+		if inorder[i] == preorder[0] {
+			break
+		}
+	}
+	// Size of left set == i
+	// Left:  preorder[1:i+1] inorder[0:i]
+	// Right: preorder[i+1:]  inorder[i+1:]
+	root.Left = buildTreeFromPreorderInorder(preorder[1:i+1], inorder[:i])
+	root.Right = buildTreeFromPreorderInorder(preorder[i+1:], inorder[i+1:])
+	return root
+}
+
+// 106
+// inorder:   left set, mid, right set
+// postorder: left set, right set, mid
+func buildTreeFromInorderPostorder(inorder []int, postorder []int) *TreeNode {
+	if len(inorder) == 0 {
+		return nil
+	}
+
+	root := &TreeNode{Val: postorder[len(postorder)-1]}
+	i := 0
+	for ; i < len(inorder); i++ {
+		if inorder[i] == postorder[len(postorder)-1] {
+			break
+		}
+	}
+	// Size of left set == i
+	// Left:  inorder[0:i]  postorder[0:i]
+	// Right: inorder[i+1:] postorder[i:len(postorder)-1]
+	root.Left = buildTreeFromInorderPostorder(inorder[:i], postorder[:i])
+	root.Right = buildTreeFromInorderPostorder(inorder[i+1:],
+		postorder[i:len(postorder)-1])
+	return root
+}
+
+// 114
+func flatten(root *TreeNode) {
+	for root != nil {
+		if root.Left != nil {
+			// Insert the right chain of left subtree into the root and root.Right
+			last := root.Left
+			for last.Right != nil {
+				last = last.Right
+			}
+			last.Right = root.Right
+			root.Right = root.Left
+			root.Left = nil
+		}
+		// Go to right subtree
+		root = root.Right
+	}
+}
+
+// 889
+// preorder:  mid, left set, right set
+// postorder: left set, right set, mid
+// preorder[mid+1] is the root of left subtree
+// The root of left subtree should be the last element in the left set of
+// postorder
+func constructFromPrePost(preorder []int, postorder []int) *TreeNode {
+	// Cache the position of each value in a postorder sequence
+	pos := make(map[int]int)
+	for i, val := range postorder {
+		pos[val] = i
+	}
+
+	var build func(pre []int, post []int, preStart, preEnd, postStart,
+		postEnd int) *TreeNode
+
+	build = func(pre []int, post []int, preStart, preEnd, postStart,
+		postEnd int) *TreeNode {
+		if preStart > preEnd {
+			return nil
+		}
+		root := &TreeNode{Val: preorder[preStart]}
+		if preStart == preEnd {
+			return root
+		}
+		// Location of left subtree root in postorder
+		k := pos[preorder[preStart+1]]
+		leftSize := k - postStart + 1
+
+		// Left:
+		// preorder => preStart+1, preStart+1+leftSize-1
+		// postorder => postStart, k
+		// Right:
+		// preorder => preStart+1+leftSize, preEnd
+		// postorder => k+1, postEnd-1
+		root.Left = build(preorder, postorder, preStart+1, preStart+leftSize,
+			postStart, k)
+		root.Right = build(preorder, postorder, preStart+1+leftSize, preEnd,
+			k+1, postEnd-1)
+		return root
+	}
+
+	return build(preorder, postorder, 0, len(preorder)-1, 0, len(postorder)-1)
+}
+
+// 104
+func maxDepth(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+
+	maxInt := func(x, y int) int {
+		if x > y {
+			return x
+		}
+		return y
+	}
+
+	return maxInt(maxDepth(root.Left), maxDepth(root.Right)) + 1
+}
