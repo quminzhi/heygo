@@ -1,6 +1,9 @@
 package tree
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type TreeNode struct {
 	Val   int
@@ -336,4 +339,112 @@ func binaryTreePaths(root *TreeNode) []string {
 	}
 
 	return treePath(root)
+}
+
+// 110
+func isBalanced(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+
+	balanced := true
+
+	var maxDepth func(root *TreeNode) int
+	maxDepth = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+
+		leftDepth := maxDepth(root.Left)
+		rightDepth := maxDepth(root.Right)
+		// Check if it is balanced
+		if math.Abs(float64(leftDepth-rightDepth)) > 1 {
+			balanced = false
+		}
+
+		maxInt := func(x, y int) int {
+			if x > y {
+				return x
+			}
+			return y
+		}
+		return maxInt(leftDepth, rightDepth) + 1
+	}
+
+	maxDepth(root)
+	return balanced
+}
+
+// 617
+func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
+	if root1 == nil {
+		return root2
+	}
+	if root2 == nil {
+		return root1
+	}
+
+	root1.Val += root2.Val
+	root1.Left = mergeTrees(root1.Left, root2.Left)
+	root1.Right = mergeTrees(root1.Right, root2.Right)
+
+	return root1
+}
+
+// 100
+func isSameTree(p *TreeNode, q *TreeNode) bool {
+	if p == nil && q == nil {
+		return true
+	}
+	if p == nil || q == nil || p.Val != q.Val {
+		return false
+	}
+	return isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
+}
+
+// 112
+func hasPathSum(root *TreeNode, targetSum int) bool {
+	if root == nil {
+		return false
+	}
+
+	// Leaf node
+	if root.Left == nil && root.Right == nil {
+		return root.Val == targetSum
+	}
+
+	left := root.Left != nil && hasPathSum(root.Left, targetSum-root.Val)
+	right := root.Right != nil && hasPathSum(root.Right, targetSum-root.Val)
+	return left || right
+}
+
+// 111
+func minDepth(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	// Leaf node
+	if root.Left == nil && root.Right == nil {
+		return 1
+	}
+
+	minInt := func(x, y int) int {
+		if x < y {
+			return x
+		}
+		return y
+	}
+	if root.Left != nil && root.Right != nil {
+		left := minDepth(root.Left)
+		right := minDepth(root.Right)
+		return minInt(left, right) + 1
+	}
+
+	if root.Left != nil {
+		// right is nil
+		return minDepth(root.Left) + 1
+	} else {
+		// left is nil
+		return minDepth(root.Right) + 1
+	}
 }
