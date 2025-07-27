@@ -616,3 +616,50 @@ func connect(root *Node) *Node {
 	}
 	return root
 }
+
+// 98
+func isValidBST(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+
+	var dfs func(root *TreeNode) (bool, int, int)
+	dfs = func(root *TreeNode) (valid bool, minVal int, maxVal int) {
+		if root.Left == nil && root.Right == nil {
+			return true, root.Val, root.Val
+		}
+		minInt := func(x, y int) int {
+			if x < y {
+				return x
+			}
+			return y
+		}
+		maxInt := func(x, y int) int {
+			if x > y {
+				return x
+			}
+			return y
+		}
+		minVal, maxVal = root.Val, root.Val
+		if root.Left != nil {
+			validLeft, minValLeft, maxValLeft := dfs(root.Left)
+			if !validLeft || maxValLeft >= root.Val {
+				return false, 0, 0
+			}
+			minVal = minInt(minVal, minValLeft)
+			maxVal = maxInt(maxVal, maxValLeft)
+		}
+		if root.Right != nil {
+			validRight, minValRight, maxValRight := dfs(root.Right)
+			if !validRight || minValRight <= root.Val {
+				return false, 0, 0
+			}
+			minVal = minInt(minVal, minValRight)
+			maxVal = maxInt(maxVal, maxValRight)
+		}
+		return true, minVal, maxVal
+	}
+
+	valid, _, _ := dfs(root)
+	return valid
+}

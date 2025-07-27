@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"math"
 	"reflect"
 	"testing"
 )
@@ -363,6 +364,140 @@ func TestPathSum(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := pathSum(tt.args.root, tt.args.targetSum); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pathSum() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsValidBST(t *testing.T) {
+	type args struct {
+		root *TreeNode
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "empty tree",
+			args: args{root: nil},
+			want: true,
+		},
+		{
+			name: "single node",
+			args: args{root: &TreeNode{Val: 1}},
+			want: true,
+		},
+		{
+			name: "valid small BST",
+			args: args{root: &TreeNode{
+				Val:   2,
+				Left:  &TreeNode{Val: 1},
+				Right: &TreeNode{Val: 3},
+			}},
+			want: true,
+		},
+		{
+			name: "invalid small BST - left equals root",
+			args: args{root: &TreeNode{
+				Val:   2,
+				Left:  &TreeNode{Val: 2},
+				Right: &TreeNode{Val: 3},
+			}},
+			want: false,
+		},
+		{
+			name: "invalid small BST - right equals root",
+			args: args{root: &TreeNode{
+				Val:   2,
+				Left:  &TreeNode{Val: 1},
+				Right: &TreeNode{Val: 2},
+			}},
+			want: false,
+		},
+		{
+			name: "invalid BST - left greater than root",
+			args: args{root: &TreeNode{
+				Val:   2,
+				Left:  &TreeNode{Val: 3},
+				Right: &TreeNode{Val: 1},
+			}},
+			want: false,
+		},
+		{
+			name: "valid complex BST",
+			args: args{root: &TreeNode{
+				Val: 8,
+				Left: &TreeNode{
+					Val:  3,
+					Left: &TreeNode{Val: 1},
+					Right: &TreeNode{
+						Val:   6,
+						Left:  &TreeNode{Val: 4},
+						Right: &TreeNode{Val: 7},
+					},
+				},
+				Right: &TreeNode{
+					Val: 10,
+					Right: &TreeNode{
+						Val:  14,
+						Left: &TreeNode{Val: 13},
+					},
+				},
+			}},
+			want: true,
+		},
+		{
+			name: "invalid complex BST - violates BST property in subtree",
+			args: args{root: &TreeNode{
+				Val: 8,
+				Left: &TreeNode{
+					Val:  3,
+					Left: &TreeNode{Val: 1},
+					Right: &TreeNode{
+						Val:   6,
+						Left:  &TreeNode{Val: 4},
+						Right: &TreeNode{Val: 9}, // 9 > root 8, should be false
+					},
+				},
+				Right: &TreeNode{
+					Val: 10,
+					Right: &TreeNode{
+						Val:  14,
+						Left: &TreeNode{Val: 13},
+					},
+				},
+			}},
+			want: false,
+		},
+		{
+			name: "invalid BST with duplicate values",
+			args: args{root: &TreeNode{
+				Val: 2,
+				Left: &TreeNode{
+					Val:  2,
+					Left: &TreeNode{Val: 1},
+				},
+				Right: &TreeNode{Val: 3},
+			}},
+			want: false,
+		},
+		{
+			name: "valid BST with min and max values",
+			args: args{root: &TreeNode{
+				Val: math.MaxInt64,
+				Left: &TreeNode{
+					Val: math.MinInt64,
+				},
+			}},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isValidBST(tt.args.root); got != tt.want {
+				t.Errorf("isValidBST() = %v, want %v", got, tt.want)
 			}
 		})
 	}
