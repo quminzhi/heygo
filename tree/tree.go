@@ -67,26 +67,26 @@ func preorderTraversal(root *TreeNode) []int {
 
 // 102
 func levelOrder(root *TreeNode) [][]int {
-	stk := make([]*TreeNode, 0)
+	queue := make([]*TreeNode, 0)
 	res := make([][]int, 0)
 
 	if root == nil {
 		return res
 	}
 
-	stk = append(stk, root)
-	for len(stk) > 0 {
+	queue = append(queue, root)
+	for len(queue) > 0 {
 		subRes := make([]int, 0)
-		num := len(stk) // The number of nodes in the same level
+		num := len(queue) // The number of nodes in the same level
 		for i := 0; i < num; i++ {
-			node := stk[0]
-			stk = stk[1:]
+			node := queue[0]
+			queue = queue[1:]
 			subRes = append(subRes, node.Val)
 			if node.Left != nil {
-				stk = append(stk, node.Left)
+				queue = append(queue, node.Left)
 			}
 			if node.Right != nil {
-				stk = append(stk, node.Right)
+				queue = append(queue, node.Right)
 			}
 		}
 		res = append(res, subRes)
@@ -487,4 +487,132 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 
 	search(root, p, q)
 	return lcaNode
+}
+
+// 113
+func pathSum(root *TreeNode, targetSum int) [][]int {
+	paths := make([][]int, 0)
+
+	var dfs func(root *TreeNode, sum int, path []int)
+	dfs = func(root *TreeNode, sum int, path []int) {
+		if root == nil {
+			return
+		}
+		sum += root.Val
+		path = append(path, root.Val)
+		if root.Left == nil && root.Right == nil {
+			if targetSum == sum {
+				// path is reference
+				pathCopy := append([]int(nil), path...)
+				paths = append(paths, pathCopy)
+			}
+			return
+		}
+		if root.Left != nil {
+			dfs(root.Left, sum, path)
+		}
+		if root.Right != nil {
+			dfs(root.Right, sum, path)
+		}
+	}
+
+	path := make([]int, 0)
+	dfs(root, 0, path)
+	return paths
+}
+
+// 437
+// 1-d prefix + hash => tree-like prefix + hash
+//
+// ------j-------i-----
+// prefix[i] - prefix[j] = targetSum
+// prefix[j] = targetSum - prefix[i]
+func pathSumIII(root *TreeNode, targetSum int) int {
+	res := 0
+	cntSum := make(map[int]int) // [sum] -> occurrence
+
+	var dfs func(root *TreeNode, sum int)
+	dfs = func(root *TreeNode, sum int) {
+		if root == nil {
+			return
+		}
+		sum += root.Val
+		res += cntSum[sum-targetSum]
+		cntSum[sum]++
+
+		if root.Left != nil {
+			dfs(root.Left, sum)
+		}
+		if root.Right != nil {
+			dfs(root.Right, sum)
+		}
+		cntSum[sum]--
+	}
+
+	cntSum[0]++ // Virtual node for prefix
+	dfs(root, 0)
+	return res
+}
+
+// 129
+func sumNumbers(root *TreeNode) int {
+	res := 0
+	if root == nil {
+		return res
+	}
+
+	var dfs func(root *TreeNode, num int)
+	dfs = func(root *TreeNode, num int) {
+		if root == nil {
+			return
+		}
+		num = root.Val + num*10
+		if root.Left == nil && root.Right == nil {
+			res += num
+		}
+		if root.Left != nil {
+			dfs(root.Left, num)
+		}
+		if root.Right != nil {
+			dfs(root.Right, num)
+		}
+	}
+
+	dfs(root, 0)
+	return res
+}
+
+type Node struct {
+	Val   int
+	Left  *Node
+	Right *Node
+	Next  *Node
+}
+
+// 117
+func connect(root *Node) *Node {
+	if root == nil {
+		return root
+	}
+	queue := make([]*Node, 0)
+	queue = append(queue, root)
+	for len(queue) > 0 {
+		n := len(queue)
+		for i := 0; i < n; i++ {
+			node := queue[0]
+			queue = queue[1:]
+			if i == n-1 {
+				node.Next = nil
+			} else {
+				node.Next = queue[0]
+			}
+			if node.Left != nil {
+				queue = append(queue, node.Left)
+			}
+			if node.Right != nil {
+				queue = append(queue, node.Right)
+			}
+		}
+	}
+	return root
 }
