@@ -448,3 +448,43 @@ func minDepth(root *TreeNode) int {
 		return minDepth(root.Right) + 1
 	}
 }
+
+// 236
+// Search from bottom to top,
+// the first root of subtree that includes both p and q is the LCA
+func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+	var lcaNode *TreeNode = nil
+
+	var search func(root, p, q *TreeNode) (state int)
+	// state:
+	// 0b00, not p nor q found
+	// 0b01, p found
+	// 0b10, q found
+	// 0b11, p and q found
+	search = func(root, p, q *TreeNode) (state int) {
+		if root == nil {
+			return 0
+		}
+		state = 0
+		// Root is p or q
+		if p == root {
+			state = state | 0b01
+		}
+		if q == root {
+			state = state | 0b10
+		}
+		// Left search p and q
+		state = state | search(root.Left, p, q)
+		// Right search p and q
+		state = state | search(root.Right, p, q)
+
+		if lcaNode == nil && state == 0b11 {
+			lcaNode = root
+		}
+
+		return state
+	}
+
+	search(root, p, q)
+	return lcaNode
+}
