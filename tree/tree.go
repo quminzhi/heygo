@@ -281,13 +281,13 @@ func diameterOfBinaryTree(root *TreeNode) int {
 	}
 
 	maxDiameter := 0
-	var maxLengthToLeafNode func(root *TreeNode) int
-	maxLengthToLeafNode = func(root *TreeNode) int {
+	var maxLengthToLeafNodeFrom func(root *TreeNode) int
+	maxLengthToLeafNodeFrom = func(root *TreeNode) int {
 		if root == nil {
 			return -1
 		}
-		left := maxLengthToLeafNode(root.Left)
-		right := maxLengthToLeafNode(root.Right)
+		left := maxLengthToLeafNodeFrom(root.Left)
+		right := maxLengthToLeafNodeFrom(root.Right)
 		// Update maxDiameter
 		diameter := left + right + 2
 		if diameter > maxDiameter {
@@ -302,7 +302,7 @@ func diameterOfBinaryTree(root *TreeNode) int {
 		return maxInt(left, right) + 1
 	}
 
-	maxLengthToLeafNode(root)
+	maxLengthToLeafNodeFrom(root)
 	return maxDiameter
 }
 
