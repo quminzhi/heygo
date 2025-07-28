@@ -3,6 +3,7 @@ package tree
 import (
 	"fmt"
 	"math"
+	"sort"
 )
 
 type TreeNode struct {
@@ -725,22 +726,110 @@ func Constructor(root *TreeNode) BSTIterator {
 	return it
 }
 
-func (this *BSTIterator) Next() int {
-	root := this.stk[len(this.stk)-1]
-	this.stk = this.stk[:len(this.stk)-1]
+func (b *BSTIterator) Next() int {
+	root := b.stk[len(b.stk)-1]
+	b.stk = b.stk[:len(b.stk)-1]
 	val := root.Val
 
 	root = root.Right
 	for root != nil {
-		this.stk = append(this.stk, root)
+		b.stk = append(b.stk, root)
 		root = root.Left
 	}
 	return val
 }
 
-func (this *BSTIterator) HasNext() bool {
-	if len(this.stk) == 0 {
+func (b *BSTIterator) HasNext() bool {
+	if len(b.stk) == 0 {
 		return false
 	}
 	return true
+}
+
+// 230
+func kthSmallest(root *TreeNode, k int) int {
+	if root == nil {
+		return -1
+	}
+
+	stk := make([]*TreeNode, 0)
+	p := root
+	n := 0
+	for p != nil || len(stk) > 0 {
+		for p != nil {
+			stk = append(stk, p)
+			p = p.Left
+		}
+		p = stk[len(stk)-1]
+		n++
+		if n == k {
+			return p.Val
+		}
+		stk = stk[:len(stk)-1]
+		p = p.Right
+	}
+
+	return -1
+}
+
+type Trie struct {
+	root *TrieNode
+}
+
+type TrieNode struct {
+	end      bool
+	children [26]*TrieNode
+}
+
+func NewTrie() *Trie {
+	return &Trie{root: &TrieNode{}}
+}
+
+func (t *Trie) Insert(str string) {
+	p := t.root
+	for i := 0; i < len(str); i++ {
+		c := int(str[i] - 'a')
+		if p.children[c] == nil {
+			p.children[c] = &TrieNode{}
+		}
+		p = p.children[c]
+	}
+	p.end = true
+}
+
+func (t *Trie) Search(str string) bool {
+	p := t.root
+	for i := 0; i < len(str); i++ {
+		c := int(str[i] - 'a')
+		// if p.children[c] == nil {
+		// 	return false
+		// }
+		// Customize for this problem
+		if !p.children[c].end {
+			return false
+		}
+		p = p.children[c]
+	}
+	return true
+}
+
+// 720
+func longestWord(words []string) string {
+	trie := NewTrie()
+	for _, word := range words {
+		trie.Insert(word)
+	}
+	sort.Slice(words, func(i, j int) bool {
+		li, lj := len(words[i]), len(words[j])
+		if li != lj {
+			return li > lj
+		}
+		return words[i] < words[j]
+	})
+	for i := 0; i < len(words); i++ {
+		if trie.Search(words[i]) {
+			return words[i]
+		}
+	}
+	return ""
 }
