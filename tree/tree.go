@@ -663,3 +663,84 @@ func isValidBST(root *TreeNode) bool {
 	valid, _, _ := dfs(root)
 	return valid
 }
+
+// 95
+func generateTrees(n int) []*TreeNode {
+	var dfs func(l, r int) []*TreeNode
+	dfs = func(l, r int) []*TreeNode {
+		res := make([]*TreeNode, 0)
+		if l > r {
+			return []*TreeNode{nil}
+		}
+
+		for k := l; k <= r; k++ {
+			leftTrees := dfs(l, k-1)
+			rightTrees := dfs(k+1, r)
+			for _, left := range leftTrees {
+				for _, right := range rightTrees {
+					root := &TreeNode{Val: k, Left: left, Right: right}
+					res = append(res, root)
+				}
+			}
+		}
+		return res
+	}
+
+	return dfs(1, n)
+}
+
+// 94
+func inorderTraversalNonRecursive(root *TreeNode) []int {
+	if root == nil {
+		return []int{}
+	}
+
+	res := make([]int, 0)
+	stk := make([]*TreeNode, 0)
+	p := root
+	for p != nil || len(stk) > 0 {
+		for p != nil {
+			stk = append(stk, p)
+			p = p.Left
+		}
+		p = stk[len(stk)-1]
+		stk = stk[:len(stk)-1]
+		res = append(res, p.Val)
+		p = p.Right
+	}
+	return res
+}
+
+// BSTIterator 173 non-recursive inorder traversal
+type BSTIterator struct {
+	stk []*TreeNode
+}
+
+func Constructor(root *TreeNode) BSTIterator {
+	it := BSTIterator{}
+	for root != nil {
+		it.stk = append(it.stk, root)
+		root = root.Left
+	}
+	return it
+}
+
+func (this *BSTIterator) Next() int {
+	root := this.stk[len(this.stk)-1]
+	this.stk = this.stk[:len(this.stk)-1]
+	val := root.Val
+
+	root = root.Right
+	for root != nil {
+		this.stk = append(this.stk, root)
+		root = root.Left
+	}
+	return val
+}
+
+func (this *BSTIterator) HasNext() bool {
+	if len(this.stk) == 0 {
+		return false
+	}
+	return true
+}

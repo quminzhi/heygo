@@ -502,3 +502,100 @@ func TestIsValidBST(t *testing.T) {
 		})
 	}
 }
+
+func TestInorderTraversalNonRecursive(t *testing.T) {
+	type args struct {
+		root *TreeNode
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{
+			name: "empty tree",
+			args: args{root: nil},
+			want: []int{},
+		},
+		{
+			name: "single node",
+			args: args{root: &TreeNode{Val: 1}},
+			want: []int{1},
+		},
+		{
+			name: "left subtree only",
+			args: args{root: &TreeNode{
+				Val: 1,
+				Left: &TreeNode{
+					Val: 2,
+					Left: &TreeNode{
+						Val: 3,
+					},
+				},
+			}},
+			want: []int{3, 2, 1},
+		},
+		{
+			name: "right subtree only",
+			args: args{root: &TreeNode{
+				Val: 1,
+				Right: &TreeNode{
+					Val: 2,
+					Right: &TreeNode{
+						Val: 3,
+					},
+				},
+			}},
+			want: []int{1, 2, 3},
+		},
+		{
+			name: "balanced tree",
+			args: args{root: &TreeNode{
+				Val: 1,
+				Left: &TreeNode{
+					Val: 2,
+					Left: &TreeNode{
+						Val: 4,
+					},
+					Right: &TreeNode{
+						Val: 5,
+					},
+				},
+				Right: &TreeNode{
+					Val: 3,
+					Left: &TreeNode{
+						Val: 6,
+					},
+					Right: &TreeNode{
+						Val: 7,
+					},
+				},
+			}},
+			want: []int{4, 2, 5, 1, 6, 3, 7},
+		},
+		{
+			name: "unbalanced tree",
+			args: args{root: &TreeNode{
+				Val: 1,
+				Left: &TreeNode{
+					Val: 2,
+					Left: &TreeNode{
+						Val: 3,
+						Left: &TreeNode{
+							Val: 4,
+						},
+					},
+				},
+			}},
+			want: []int{4, 3, 2, 1},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := inorderTraversalNonRecursive(tt.args.root); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("inorderTraversalNonRecursive() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
