@@ -8,33 +8,65 @@ import (
 )
 
 // QuickSort sort an array of numbers in [left, right]
+//
+//	func QuickSort(nums []int, left, right int) {
+//		if left >= right {
+//			return
+//		}
+//
+//		// Create a new random number generator with a custom source
+//		rg := rand.New(rand.NewSource(time.Now().UnixNano()))
+//		pivotIndex := rg.Intn(right-left) + left
+//		pivot := nums[pivotIndex]
+//
+//		l, r := left, right
+//		for l <= r {
+//			for nums[l] < pivot {
+//				l++
+//			}
+//			for nums[r] > pivot {
+//				r--
+//			}
+//			if l <= r {
+//				nums[l], nums[r] = nums[r], nums[l]
+//				l++
+//				r--
+//			}
+//		}
+//
+//		QuickSort(nums, left, r)
+//		QuickSort(nums, l, right)
+//	}
 func QuickSort(nums []int, left, right int) {
-	if left >= right {
-		return
-	}
-
-	// Create a new random number generator with a custom source
 	rg := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pivotIndex := rg.Intn(right-left) + left
-	pivot := nums[pivotIndex]
 
-	l, r := left, right
-	for l <= r {
-		for nums[l] < pivot {
-			l++
+	var quickSort func(left, right int)
+	quickSort = func(left, right int) {
+		if left >= right {
+			return
 		}
-		for nums[r] > pivot {
-			r--
+		pivotIndex := left + rg.Intn(right-left+1)
+		pivot := nums[pivotIndex]
+
+		// Move pivot to the end for partitioning
+		nums[pivotIndex], nums[right] = nums[right], nums[pivotIndex]
+
+		// Partition
+		i := left
+		for j := left; j < right; j++ {
+			if nums[j] < pivot {
+				nums[i], nums[j] = nums[j], nums[i]
+				i++
+			}
 		}
-		if l <= r {
-			nums[l], nums[r] = nums[r], nums[l]
-			l++
-			r--
-		}
+
+		nums[i], nums[right] = nums[right], nums[i]
+
+		quickSort(left, i-1)
+		quickSort(i+1, right)
 	}
 
-	QuickSort(nums, left, r)
-	QuickSort(nums, l, right)
+	quickSort(0, len(nums)-1)
 }
 
 // QuickSortNR is a non-recursive implementation with stack
