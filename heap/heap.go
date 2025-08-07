@@ -105,32 +105,36 @@ func findKthLargest(nums []int, k int) int {
 	return quickSelect(0, len(nums)-1)
 }
 
-type Pair struct {
-	num, freq int
-}
-
-type MinHeap []Pair
-
-func (h MinHeap) Len() int { return len(h) }
-func (h MinHeap) Less(i, j int) bool {
-	return h[i].freq < h[j].freq
-}
-func (h MinHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
-}
-func (h *MinHeap) Push(x interface{}) {
-	*h = append(*h, x.(Pair))
-}
-func (h *MinHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[:n-1]
-	return x
-}
-
 // 347
 // 1. heap O(nlogk)
+//
+//	type Pair struct {
+//		num, freq int
+//	}
+//
+// type MinHeap []Pair
+//
+// func (h MinHeap) Len() int { return len(h) }
+//
+//	func (h MinHeap) Less(i, j int) bool {
+//		return h[i].freq < h[j].freq
+//	}
+//
+//	func (h MinHeap) Swap(i, j int) {
+//		h[i], h[j] = h[j], h[i]
+//	}
+//
+//	func (h *MinHeap) Push(x interface{}) {
+//		*h = append(*h, x.(Pair))
+//	}
+//
+//	func (h *MinHeap) Pop() interface{} {
+//		old := *h
+//		n := len(old)
+//		x := old[n-1]
+//		*h = old[:n-1]
+//		return x
+//	}
 //
 //	func topKFrequent(nums []int, k int) []int {
 //		m := make(map[int]int)
@@ -171,7 +175,10 @@ func topKFrequent(nums []int, k int) []int {
 		f = append(f, Pair{num, freq})
 	}
 
-	// quick sort on array f
+	// Convert kth largest number (1-based) to its increasing order index (
+	// 0-based)
+	kth := len(f) - k
+	// Quick sort on array f
 	rg := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	var quickSort func(left, right int)
@@ -192,11 +199,13 @@ func topKFrequent(nums []int, k int) []int {
 		}
 		f[i], f[right] = f[right], f[i]
 
-		if right-i <= k {
-			// got first k elements
+		if i == kth {
+			// kth largest number found, meaning top k found
 			return
-		} else {
+		} else if i < kth {
 			quickSort(i+1, right)
+		} else {
+			quickSort(left, i-1)
 		}
 	}
 	quickSort(0, len(f)-1)
@@ -206,6 +215,66 @@ func topKFrequent(nums []int, k int) []int {
 		res = append(res, f[j].num)
 		j--
 	}
+
+	return res
+}
+
+// 692
+type Pair struct {
+	word string
+	freq int
+}
+
+type MinHeap []Pair
+
+func (h MinHeap) Len() int {
+	return len(h)
+}
+func (h MinHeap) Less(i, j int) bool {
+	if h[i].freq == h[j].freq {
+		return h[i].word > h[j].word
+	}
+	return h[i].freq < h[j].freq
+}
+func (h MinHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+func (h *MinHeap) Push(x interface{}) {
+	*h = append(*h, x.(Pair))
+}
+func (h *MinHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[:n-1]
+	return x
+}
+
+func topKFrequentWords(words []string, k int) []string {
+	dict := make(map[string]int)
+	for _, word := range words {
+		dict[word] = dict[word] + 1
+	}
+	h := make(MinHeap, 0)
+	heap.Init(&h)
+	for word, freq := range dict {
+		heap.Push(&h, Pair{word, freq})
+		for h.Len() > k {
+			heap.Pop(&h)
+		}
+	}
+
+	res := make([]string, 0)
+	for h.Len() > 0 {
+		res = append(res, heap.Pop(&h).(Pair).word)
+	}
+
+	reverse := func(s []string) {
+		for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+			s[i], s[j] = s[j], s[i]
+		}
+	}
+	reverse(res)
 
 	return res
 }
