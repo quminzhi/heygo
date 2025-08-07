@@ -104,3 +104,108 @@ func findKthLargest(nums []int, k int) int {
 
 	return quickSelect(0, len(nums)-1)
 }
+
+type Pair struct {
+	num, freq int
+}
+
+type MinHeap []Pair
+
+func (h MinHeap) Len() int { return len(h) }
+func (h MinHeap) Less(i, j int) bool {
+	return h[i].freq < h[j].freq
+}
+func (h MinHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+func (h *MinHeap) Push(x interface{}) {
+	*h = append(*h, x.(Pair))
+}
+func (h *MinHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[:n-1]
+	return x
+}
+
+// 347
+// 1. heap O(nlogk)
+//
+//	func topKFrequent(nums []int, k int) []int {
+//		m := make(map[int]int)
+//		for _, num := range nums {
+//			m[num]++
+//		}
+//
+//		h := &MinHeap{}
+//		heap.Init(h)
+//
+//		for num, freq := range m {
+//			heap.Push(h, Pair{num, freq})
+//			for h.Len() > k {
+//				heap.Pop(h)
+//			}
+//		}
+//
+//		res := make([]int, 0)
+//		for h.Len() > 0 {
+//			res = append(res, heap.Pop(h).(Pair).num)
+//		}
+//
+//		return res
+//	}
+//
+// 2. quick select O(n)
+func topKFrequent(nums []int, k int) []int {
+	m := make(map[int]int)
+	for _, num := range nums {
+		m[num]++
+	}
+
+	type Pair struct {
+		num, freq int
+	}
+	f := make([]Pair, 0)
+	for num, freq := range m {
+		f = append(f, Pair{num, freq})
+	}
+
+	// quick sort on array f
+	rg := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	var quickSort func(left, right int)
+	quickSort = func(left, right int) {
+		if left >= right {
+			return
+		}
+
+		pivotIndex := left + rg.Intn(right-left+1)
+		pivot := f[pivotIndex]
+		f[right], f[pivotIndex] = f[pivotIndex], f[right]
+		i := left
+		for j := left; j < right; j++ {
+			if f[j].freq < pivot.freq {
+				f[i], f[j] = f[j], f[i]
+				i++
+			}
+		}
+		f[i], f[right] = f[right], f[i]
+
+		if right-i <= k {
+			// got first k elements
+			return
+		} else {
+			quickSort(i+1, right)
+		}
+	}
+	quickSort(0, len(f)-1)
+
+	res := make([]int, 0)
+	for i, j := 0, len(f)-1; i < k; i++ {
+		res = append(res, f[j].num)
+		j--
+	}
+
+	return res
+}
