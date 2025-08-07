@@ -92,4 +92,4 @@ make help
 This will display a summary of all the commands you can use with the `Makefile`.
 
 ## Contributing
-If you want to contribute to this project, please fork the repository and create a pull request with your changes. Thanks
+If you want to contribute to this project, please fork the repository and create a pull request with your changes.
